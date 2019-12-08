@@ -38,7 +38,7 @@ def getElbowAngle(coor, side=''):
     if shoulder[2] != 0 and elbow[2] != 0 and wrist[2] != 0:
         return getAngle(shoulder, elbow, wrist)
     else:
-        return None
+        return 0
 
 
 def getHipAngle(coor, side=''):
@@ -53,7 +53,7 @@ def getHipAngle(coor, side=''):
     if knee[2] != 0 and neck[2] != 0 and m_hip[2] != 0:
         return getAngle(knee, m_hip, neck)
     else:
-        return None
+        return 0
 
 
 def getKneeAngle(coor, side=''):
@@ -68,7 +68,7 @@ def getKneeAngle(coor, side=''):
     if knee[2] != 0 and ankle[2] != 0 and m_hip[2] != 0:
         return getAngle(m_hip, knee, ankle)
     else:
-        return None
+        return 0
 
 
 def getHipDistance(coor, side=''):
@@ -83,7 +83,7 @@ def getHipDistance(coor, side=''):
     if m_hip[2] != 0 and r_toe[2] != 0 and r_wrist[2] != 0:
         return getDistance(m_hip, r_toe, r_wrist)
     else:
-        return None
+        return 0
 
 
 def getHeadDistance(coor):
@@ -102,7 +102,7 @@ def getHeadDistance(coor):
         else:
             return dist
     else:
-        return None
+        return 0
 
 
 def getEyeWristDistance(coor):
@@ -120,4 +120,4 @@ def getEyeWristDistance(coor):
         else:
             return dist
     else:
-        return None
+        return 0
