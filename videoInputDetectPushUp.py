@@ -12,15 +12,21 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 try:
     # Windows Import
     # Change these variables to point to the correct folder (Release/x64 etc.)
-    sys.path.append(r'E:\Programming\Openpose\openpose\openposePython\build\python\openpose\Release')
-    os.environ['PATH'] = os.environ['PATH'] + ';' + r'E:\Programming\Openpose\openpose\openposePython\build\x64\Release;' + r'E:\Programming\Openpose\openpose\openposePython\build\bin;'
+    sys.path.append(
+        r'E:\Programming\Openpose\openpose\openposePython\build\python\openpose\Release'
+    )
+    os.environ['PATH'] = os.environ[
+        'PATH'] + ';' + r'E:\Programming\Openpose\openpose\openposePython\build\x64\Release;' + r'E:\Programming\Openpose\openpose\openposePython\build\bin;'
     import pyopenpose as op
 except ImportError as e:
     print(e)
-    print('Error: OpenPose library could not be found. Did you enable `BUILD_PYTHON` in CMake and have this Python script in the right folder?')
+    print(
+        'Error: OpenPose library could not be found. Did you enable `BUILD_PYTHON` in CMake and have this Python script in the right folder?'
+    )
 
 params = dict()
-params["model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
+params[
+    "model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
 
 # Starting OpenPose
 opWrapper = op.WrapperPython()
@@ -56,24 +62,25 @@ def pushUpDetect():
         ret, imageToProcessSide = cap_side.read()
         cv2.imshow('front', imageToProcessFront)
         cv2.imshow('side', imageToProcessSide)
+        cnt = 0
         if cnt % 2 == 0:
-            datum1 = op.Datum()
-            datum2 = op.Datum()
-            datum1.cvInputData = imageToProcessFront
-            datum2.cvInputData = imageToProcessSide
-            opWrapper.emplaceAndPop([datum1])
-            opWrapper.emplaceAndPop([datum2])
+            datum_front = op.Datum()
+            datum_side = op.Datum()
+            datum_front.cvInputData = imageToProcessFront
+            datum_side.cvInputData = imageToProcessSide
+            opWrapper.emplaceAndPop([datum_front])
+            opWrapper.emplaceAndPop([datum_side])
             # print("Body keypoints:")
-            if datum1.poseKeypoints.size != 1 and datum2.poseKeypoints.size != 1:
-                coor_front = kpp.getKeyPoints(datum1.poseKeypoints[0])  # 记得改参数
-                coor_side = kpp.getKeyPoints(datum2.poseKeypoints[0])
+            if datum_front.poseKeypoints.size != 1 and datum_side.poseKeypoints.size != 1:
+                coor_front = kpp.getKeyPoints(datum_front.poseKeypoints[0])  # 记得改参数
+                coor_side = kpp.getKeyPoints(datum_side.poseKeypoints[0])
                 r_elbow_angle = getValue.getElbowAngle(coor_front, 'R')
                 l_elbow_angle = getValue.getElbowAngle(coor_front, 'L')
 
                 l_knee_angle = getValue.getKneeAngle(coor_side, 'L')
                 hip_angle = getValue.getHipAngle(coor_side, 'L')
                 hip_distance = getValue.getHipDistance(coor_side, 'L')
-                
+
                 if r_elbow_angle:
                     r_elbow_angle_list.append(r_elbow_angle)
                     tick.append(r_elbow_angle)
@@ -91,19 +98,19 @@ def pushUpDetect():
 
                     if len(tick) == 5:
                         tend = analysis.getTendency(tick, 20)  # One tick
+                        print(tend)
                         tick = []
                         if tend:
                             tendency.append(tend)
                             if 3 <= len(tendency):
                                 if tendency[-1] == 'down' or tendency[
                                         -1] == 'stable':
-                                    if tendency[-2] == 'upper' and tendency[
-                                            -3] == 'upper':  # a period
-                                        cnt += 1
+                                    if tendency[-2] == 'upper':  # a period and tendency[-3] == 'upper'
                                         result['Num'] = pushUpCnt
                                         standard = analysis.pushUpPeriodJudgeTwoSides(
-                                            r_elbow_angle_list, l_elbow_angle_list,
-                                            hip_angle_list, l_knee_angle_list,
+                                            r_elbow_angle_list,
+                                            l_elbow_angle_list, hip_angle_list,
+                                            l_knee_angle_list,
                                             hip_distance_list)
                                         result['IsRElbowStandard'], result[
                                             'IsLElbowStandard'], result[
@@ -121,8 +128,9 @@ def pushUpDetect():
                                         print(result)
                                         result = {}
         cnt += 1
-        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum1.cvOutputData)
-        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API - front", datum2.cvOutputData)
+        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum_front.cvOutputData)
+        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API - side",
+                   datum_side.cvOutputData)
 
         if cv2.waitKey(1) == ord('q'):
             break

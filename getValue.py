@@ -11,7 +11,7 @@ def getAngle(d1, d2, d3):
     a = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
     b = math.sqrt((x3 - x2)**2 + (y3 - y2)**2)
     c_2 = ((x1 - x3)**2 + (y1 - y3)**2)
-    cos = (a**2 + b**2 - c_2) / (2 * a * b)
+    cos = abs((a**2 + b**2 - c_2) / (2 * a * b))
     return math.acos(cos) / math.pi * 180
 
 
@@ -23,6 +23,16 @@ def getDistance(d1, d2, d3):
     x1, y1, x2, y2, x3, y3 = d1[0], d1[1], d2[0], d2[1], d3[0], d3[1]
     distance = abs((y2 - y3) * x1 - (x2 - x3) * y1 + (x2 * y3) -
                    (y2 * x3)) / math.sqrt((y2 - y3)**2 + (x2 - x3)**2)
+    return distance
+
+
+def getPointDistance(d1, d2):
+    """Get the distance between dot d1 and d2
+    input: tuple or list of the two coordinate
+    output： the distance between dot d1 and d2
+    """
+    x1, y1, x2, y2 = d1[0], d1[1], d2[0], d2[1]
+    distance = math.sqrt((x1-x2)**2+(y1-y2)**2)
     return distance
 
 
@@ -38,7 +48,7 @@ def getElbowAngle(coor, side=''):
     if shoulder[2] != 0 and elbow[2] != 0 and wrist[2] != 0:
         return getAngle(shoulder, elbow, wrist)
     else:
-        return 0
+        return None
 
 
 def getHipAngle(coor, side=''):
@@ -53,7 +63,7 @@ def getHipAngle(coor, side=''):
     if knee[2] != 0 and neck[2] != 0 and m_hip[2] != 0:
         return getAngle(knee, m_hip, neck)
     else:
-        return 0
+        return None
 
 
 def getKneeAngle(coor, side=''):
@@ -68,7 +78,7 @@ def getKneeAngle(coor, side=''):
     if knee[2] != 0 and ankle[2] != 0 and m_hip[2] != 0:
         return getAngle(m_hip, knee, ankle)
     else:
-        return 0
+        return None
 
 
 def getHipDistance(coor, side=''):
@@ -83,7 +93,7 @@ def getHipDistance(coor, side=''):
     if m_hip[2] != 0 and r_toe[2] != 0 and r_wrist[2] != 0:
         return getDistance(m_hip, r_toe, r_wrist)
     else:
-        return 0
+        return None
 
 
 def getHeadDistance(coor):
@@ -102,7 +112,7 @@ def getHeadDistance(coor):
         else:
             return dist
     else:
-        return 0
+        return None
 
 
 def getEyeWristDistance(coor):
@@ -120,4 +130,33 @@ def getEyeWristDistance(coor):
         else:
             return dist
     else:
-        return 0
+        return None
+
+
+def getWaistAngle(coor, side=''):
+    """Get the waist angle
+        Args:coor: dictionary of body coordinactes
+        side: L/R
+        output: The angle of waist
+    """
+    neck = coor['Neck']
+    hip = coor[side + 'Hip']  # compare LHip and MidHip
+    knee = coor[side + 'Knee']
+    if neck[2] != 0 and hip[2] != 0 and knee[2] != 0:
+        return getAngle(neck, hip, knee)
+    else:
+        return None
+
+
+def getElbowToNeckDistance(coor, side=''):  # 仰卧起坐手肘到脖子距离，大致固定没有变化趋势
+    """ Get the distance between Shoulder and wrist
+        Args: coor: dictionary of body coordinates
+              side: L/R
+        output: The distance between Elbow and Neck
+    """
+    neck = coor['Neck']
+    elbow = coor[side + 'Elbow']
+    if elbow[2] != 0 and neck[2] != 0:
+        return getPointDistance(neck, elbow)
+    else:
+        return None

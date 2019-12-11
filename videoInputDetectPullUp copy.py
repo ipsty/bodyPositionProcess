@@ -4,7 +4,6 @@ import os
 import time
 import keyPointsProcess as kpp
 # import infoVisualization as iv
-import matplotlib.pyplot as plt
 import getValue
 import analysis
 
@@ -98,15 +97,13 @@ def pullUpDetect():
                                         result = {}
 
                 cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum.cvOutputData)
-            
+
             if cv2.waitKey(1) == ord('q'):
                 break
-                
+
             # if cnt == 500:
                 # break
         cnt += 1
-
-
 
     end = time.time()
     print("OpenPose demo successfully finished. Total time: " + str(end - start) + " seconds")

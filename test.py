@@ -226,3 +226,103 @@ def getPullUpInfos(folder_path, is_print, region=[]):
     ax4.set_title('eye bar distance')
     plt.show()
     # plt.savefig(r'E:\University\科研创新\雏燕计划-体测\push-up-side.png')
+
+
+def getSitUpInfos(folder_path, is_print, region=[]):
+    '''Open folder and process .json into a dict
+       input: The file path
+       ouput: The analysis of some infos of the whole process
+    '''
+    files = os.listdir(folder_path)
+    max_r_waist_angle = 0
+    min_r_waist_angle = 200
+    max_r_s_knee_angle = 0
+    min_r_s_knee_angle = 200
+    s_knee_ang = []
+    wai_ang = []
+    cnt = 0
+    cnt1 = cnt2 = 0
+    cnt3 = 0
+    total_waist_angle = total_s_knee_angle = 0
+
+    for i, file in enumerate(files):
+        coor = jp.getJson(folder_path + '\\' + file)
+        if not coor:
+            continue
+        cnt = i
+        r_s_knee_angle = getValue.getKneeAngle(coor, 'R')
+        r_waist_angle = getValue.getWaistAngle(coor, 'R')
+
+        if r_s_knee_angle:
+            s_knee_ang.append(r_s_knee_angle)
+            total_s_knee_angle += r_s_knee_angle
+            cnt1 += 1
+            max_r_s_knee_angle = max(max_r_s_knee_angle, r_s_knee_angle)
+            min_r_s_knee_angle = min(min_r_s_knee_angle, r_s_knee_angle)
+        else:
+            s_knee_ang.append(0)
+
+        if r_waist_angle:
+            wai_ang.append(r_waist_angle)
+            total_waist_angle += r_waist_angle
+            cnt2 += 1
+            max_r_waist_angle = max(max_r_waist_angle, r_waist_angle)
+            min_r_waist_angle = min(min_r_waist_angle, r_waist_angle)
+        else:
+            wai_ang.append(0)
+
+    aver_r_s_knee_angle = total_s_knee_angle / cnt1
+    aver_r_waist_angle = total_waist_angle / cnt2
+
+    if is_print:
+        print('max sit-up knee angle:', max_r_s_knee_angle)
+        print('min sit-up knee angle:', min_r_s_knee_angle)
+        print('aver sit-up knee angle:', aver_r_s_knee_angle)
+
+        print('max sit-up waist angle:', max_r_waist_angle)
+        print('min sit-up waist angle:', min_r_waist_angle)
+        print('aver sit-up waist angle:', aver_r_waist_angle)
+
+    s_knee_ang_below_60 = []
+    for ans in s_knee_ang:
+        if ans < 105:
+            s_knee_ang_below_60.append(ans)
+        else:
+            s_knee_ang_below_60.append(None)
+    cnt += 1
+
+    wai_ang_above_140 = []
+    for wans in s_knee_ang:
+        if wans > 140:
+            wai_ang_above_140.append(wans)
+        else:
+            wai_ang_above_140.append(None)
+    cnt3 += 1
+    cnt = 0
+    for i in s_knee_ang:
+        if s_knee_ang[i] is not None:
+            cnt += 1
+        return cnt
+
+    ax1 = plt.subplot(1, 2, 1)  # 第一行的左图 第一个参数代表子图的行数，第二个参数代表该行图像的列数，第三个参数代表每行的第几个图像
+    # plt.hlines(165, )
+    # ax1.scatter(range(cnt1), elb_ang, label='elbow angle', s=10)
+    # ax1.scatter(range(cnt1), elb_ang_below_105, label='elbow angle', color='r', s=10)
+    # actu = [89, 149, 238, 328, 418, 597, 686, 746, 836, 955, 985]
+    # region = 0
+    ax1.scatter(range(cnt), s_knee_ang, label='s_knee angle', s=2)  # range(cnt)表示绘制散点图的数据点，s_knee_ang:图名，s:一个实数？
+    ax1.scatter(range(cnt), s_knee_ang_below_60, label='s_knee_angle', color='r', s=2)  # color表示颜色
+    ax1.hlines(70, 0, cnt, colors='c')  # 绘制水平辅助线 70：横坐标，0：ymin,cnt: ymax(辅助线纵坐标的最大最小值) colors:颜色
+    ax1.vlines(region, 0, 180)  # 绘制竖直辅助线
+    # ax1.vlines(actu, 0, 180, colors='r')
+    ax1.set_title('s_knee_angle')
+
+    ax2 = plt.subplot(1, 2, 2)
+    ax2.scatter(range(cnt), wai_ang, label='waist angle', s=2)
+    ax1.scatter(range(cnt), wai_ang_above_140, label='waist_angle', color='r', s=2)  # color表示颜色
+    ax1.hlines(140, 0, cnt, colors='c')  # 绘制水平辅助线 140：横坐标，0：ymin,cnt: ymax(辅助线纵坐标的最大最小值) colors:颜色
+    ax2.set_title('waist_angle')
+    #fig, ax2 = plt.subplots(figsize=(12, 12))
+    #ax2.imshow(ax2, aspect='waist_angle')  # im是要显示的图案
+    plt.savefig(r"C:\Users\Lenovo\Desktop\雏燕2019\后端部分所需资料\sit-up.png")
+    plt.show()
