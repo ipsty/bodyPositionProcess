@@ -29,13 +29,13 @@ opWrapper.start()
 
 # get video from webcam or video
 start = time.time()
-cap1 = cv2.VideoCapture(0)
-cap2 = cv2.VideoCapture(1)
+cap_side = cv2.VideoCapture(0)
+cap_front = cv2.VideoCapture(1)
 # cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
 coorList = []
 
 
-def pullUpDetect():
+def pushUpDetect():
     # Process
     cnt = 0
 
@@ -44,81 +44,95 @@ def pullUpDetect():
     result = {}
     r_elbow_angle_list = []
     l_elbow_angle_list = []
-    eye_distance_list = []
+    l_knee_angle_list = []
+    hip_angle_list = []
+    hip_distance_list = []
     tick = []
-    pullUpCnt = 0
+    pushUpCnt = 0
 
     while True:
         # Get images from cam
-        ret, imageToProcess1 = cap1.read()
-        ret, imageToProcess2 = cap2.read()
-        # cv2.imshow(imageToProcess)
+        ret, imageToProcessFront = cap_front.read()
+        ret, imageToProcessSide = cap_side.read()
+        cv2.imshow('front', imageToProcessFront)
+        cv2.imshow('side', imageToProcessSide)
         if cnt % 2 == 0:
-            datum1 = op.datum()
-            datum2 = op.datum()
-            datum1.cvInputData = imageToProcess1
-            datum2.cvInputData = imageToProcess2
+            datum1 = op.Datum()
+            datum2 = op.Datum()
+            datum1.cvInputData = imageToProcessFront
+            datum2.cvInputData = imageToProcessSide
             opWrapper.emplaceAndPop([datum1])
             opWrapper.emplaceAndPop([datum2])
-            print("Body keypoints:")
+            # print("Body keypoints:")
             if datum1.poseKeypoints.size != 1 and datum2.poseKeypoints.size != 1:
                 coor_front = kpp.getKeyPoints(datum1.poseKeypoints[0])  # 记得改参数
                 coor_side = kpp.getKeyPoints(datum2.poseKeypoints[0])
                 r_elbow_angle = getValue.getElbowAngle(coor_front, 'R')
                 l_elbow_angle = getValue.getElbowAngle(coor_front, 'L')
 
-                r_knee_angle = getValue.getKneeAngle(coor_side, 'R')
-                hip_angle = getValue.getHipAngle(coor_side, 'R')
-                hip_distance = getValue.getHipDistance(coor_side, 'R')
-
-                if hip_angle:
-                    hip_angle_list.append(hip_angle)
-
-                if r_knee_angle:
-                    r_knee_angle_list.append(r_knee_angle)
-
+                l_knee_angle = getValue.getKneeAngle(coor_side, 'L')
+                hip_angle = getValue.getHipAngle(coor_side, 'L')
+                hip_distance = getValue.getHipDistance(coor_side, 'L')
+                
                 if r_elbow_angle:
                     r_elbow_angle_list.append(r_elbow_angle)
                     tick.append(r_elbow_angle)
+                    if hip_angle:
+                        hip_angle_list.append(hip_angle)
 
-                if l_elbow_angle:
-                    l_elbow_angle_list.append(l_elbow_angle)
+                    if l_knee_angle:
+                        l_knee_angle_list.append(l_knee_angle)
 
-                if hip_distance:
-                    hip_distance_list.append(hip_distance)
+                    if l_elbow_angle:
+                        l_elbow_angle_list.append(l_elbow_angle)
 
-                if len(tick) == 5:
-                    tend = analysis.getTendency(tick, 20)  # One tick
-                    tick = []
-                    if tend:
-                        tendency.append(tend)
-                        if 3 <= len(tendency):
-                            if tendency[-1] == 'down' or tendency[-1] == 'stable':
-                                if tendency[-2] == 'upper' and tendency[-3] == 'upper':  # a period
-                                    cnt += 1
-                                    result['Num'] = cnt
-                                    standard = analysis.pushUpPeriodJudgeTwoSides(r_elbow_angle_list, l_elbow_angle_list,
-                                                                                hip_angle_list, r_knee_angle_list,
-                                                                                hip_distance_list)
-                                    result['IsRElbowStandard'], result['IsLElbowStandard'], result['IsHipAngleStandard'], result['IsRKneeStandard'], result['IsHipDistanceStandard'] = standard
-                                    result['Flag'] = i
+                    if hip_distance:
+                        hip_distance_list.append(hip_distance)
 
-                                    r_elbow_angle_list = []
-                                    l_elbow_angle_list = []
-                                    r_knee_angle_list = []
-                                    hip_angle_list = []
-                                    hip_distance_list = []
+                    if len(tick) == 5:
+                        tend = analysis.getTendency(tick, 20)  # One tick
+                        tick = []
+                        if tend:
+                            tendency.append(tend)
+                            if 3 <= len(tendency):
+                                if tendency[-1] == 'down' or tendency[
+                                        -1] == 'stable':
+                                    if tendency[-2] == 'upper' and tendency[
+                                            -3] == 'upper':  # a period
+                                        cnt += 1
+                                        result['Num'] = pushUpCnt
+                                        standard = analysis.pushUpPeriodJudgeTwoSides(
+                                            r_elbow_angle_list, l_elbow_angle_list,
+                                            hip_angle_list, l_knee_angle_list,
+                                            hip_distance_list)
+                                        result['IsRElbowStandard'], result[
+                                            'IsLElbowStandard'], result[
+                                                'IsHipAngleStandard'], result[
+                                                    'IsRKneeStandard'], result[
+                                                        'IsHipDistanceStandard'] = standard
 
-                                    results.append(result)
-                                    print(result)
-                                    result = {}
+                                        r_elbow_angle_list = []
+                                        l_elbow_angle_list = []
+                                        l_knee_angle_list = []
+                                        hip_angle_list = []
+                                        hip_distance_list = []
+                                        pushUpCnt += 1
+                                        results.append(result)
+                                        print(result)
+                                        result = {}
         cnt += 1
+        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum1.cvOutputData)
+        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API - front", datum2.cvOutputData)
 
-    end = time.time()
-    print("OpenPose demo successfully finished. Total time: " + str(end - start) + " seconds")
+        if cv2.waitKey(1) == ord('q'):
+            break
+
+    # end = time.time()
+    # print("OpenPose demo successfully finished. Total time: " +
+    #       str(end - start) + " seconds")
     # except Exception as e:
     #     print(e)
     #     sys.exit(-1)
 
 
-pullUpDetect()
+pushUpDetect()

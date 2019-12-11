@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import getValue
 import analysis
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
 try:
     # Windows Import
     # Change these variables to point to the correct folder (Release/x64 etc.)
@@ -30,6 +29,7 @@ opWrapper.start()
 # get video from webcam or video
 start = time.time()
 cap = cv2.VideoCapture(0)
+cap_t = cv2.VideoCapture(1)
 # cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
 coorList = []
 
@@ -55,7 +55,9 @@ def pullUpDetect():
     while True:
         # Get images from cam
         ret, imageToProcess = cap.read()
-        # cv2.imshow(imageToProcess)
+        ret, imageToTest = cap_t.read()
+        cv2.imshow('video', imageToProcess)
+        cv2.imshow('2', imageToTest)
         if cnt % 2 == 0:
             datum = op.Datum()
             datum.cvInputData = imageToProcess

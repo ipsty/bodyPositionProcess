@@ -15,4 +15,6 @@ with open(CONFIG_FILE, 'w') as cfgfile:
     conf.set('PushUp_Config', 'HIP_ANGLE_TO_ABOVE', '150')
     conf.set('PushUp_Config', 'ELBOW_PERIOD_JUDGE_TO_BELOW', '70')
     conf.set('PushUp_Config', 'ELBOW_PERIOD_JUDGE_TO_ABOVE', '125')
+    conf.set('PushUp_Config', 'HIP_DISTANCE_TO_ABOVE', '125')
+    conf.set('PushUp_Config', 'HIP_DISTANCE_TO_BELOW', '125')
     conf.write(cfgfile)
