@@ -112,8 +112,7 @@ def sitUpDetect():
                             tendency.append(tend)
                             if 3 <= len(tendency):
                                 if tendency[-1] == 'down':
-                                    if tendency[
-                                            -2] == 'upper':  # a period and tendency[-3] == 'upper'
+                                    if tendency[-2] == 'upper':  # a period and tendency[-3] == 'upper'
                                         cnt += 1
                                         result['Num'] = cnt
                                         standard = analysis.sitUpPeriodJudge(
@@ -132,8 +131,7 @@ def sitUpDetect():
                                         # result['Flag'] = i
                                         r_waist_angle_list = l_waist_angle_list = []
                                         r_s_knee_angle_list = l_s_knee_angle_list = []
-                                        r_elbowtoneck_dist_list = l_elbowtoneck_dist_list = [
-                                        ]   # 序列置空
+                                        r_elbowtoneck_dist_list = l_elbowtoneck_dist_list = []   # 序列置空
                                         cnt_1 = cnt_2 = 0
                                         results.append(result)
                                         print(result)

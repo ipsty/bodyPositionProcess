@@ -1,4 +1,5 @@
-import numpy as np
+import json
+
 BODY_PATRS = ['Nose', 'Neck',
               'RShoulder', 'RElbow', 'RWrist',
               'LShoulder', 'LElbow', 'LWrist',
@@ -12,10 +13,9 @@ BODY_PATRS = ['Nose', 'Neck',
 
 
 def getKeyPoints(keyPointsList):
-    if keyPointsList.size == 75:
-        coor = {}
-        for x in range(25):
-            s = ()
-            s = (keyPointsList[x][0], keyPointsList[x][1], keyPointsList[x][2])
-            coor[BODY_PATRS[x]] = s
-        return coor
+    coor = {}
+    for x in range(25):
+        s = ()
+        s = (keyPointsList[x][0], keyPointsList[x][1], keyPointsList[x][2])
+        coor[BODY_PATRS[x]] = s
+    return coor

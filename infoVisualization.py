@@ -2,6 +2,7 @@ import getValue
 import matplotlib.pyplot as plt
 import sys
 
+
 def pushUpVisualization(coor, i):
     '''Read coordinates and display it
        input: List of coordinates

@@ -32,3 +32,21 @@ def getJson(file_path):
             s = (body_list[i], body_list[i + 1], body_list[i + 2])
             coor[BODY_PATRS[x]] = s
         return coor
+
+
+def getPyJson(file_path):
+    '''Open folder and process .json into a dict
+       input: The file path
+       ouput: A dictionay of parts' name and cooridnates
+    '''
+    with open(file_path) as f:
+        obj = json.load(f)
+
+        coor = {}  # Store each body part into a dictionary
+
+        for x in range(25):
+            i = x * 3
+            s = ()
+            s = (obj[i], obj[i + 1], obj[i + 2])
+            coor[BODY_PATRS[x]] = s
+        return coor

@@ -36,11 +36,6 @@ coorList = []
 def pullUpDetect():
     # Process
     cnt = 0
-    # plt.ion()
-    # ax1 = plt.subplot(2, 2, 1)
-    # ax2 = plt.subplot(2, 2, 2)
-    # ax3 = plt.subplot(2, 2, 3)
-    # ax4 = plt.subplot(2, 2, 4)
 
     results = []
     tendency = []
@@ -61,7 +56,6 @@ def pullUpDetect():
             datum = op.Datum()
             datum.cvInputData = imageToProcess
             opWrapper.emplaceAndPop([datum])
-            # print("Body keypoints:")
             if datum.poseKeypoints.size != 1:
                 coor = kpp.getKeyPoints(datum.poseKeypoints[0])
                 if coor:
@@ -90,7 +84,6 @@ def pullUpDetect():
                                         result['Num'] = pullUpCnt
                                         standard = analysis.pullUpPeriodJudge(r_elbow_angle_list, l_elbow_angle_list, eye_distance_list)
                                         result['IsRElbowStandard'], result['IsLElbowStandard'], result['IsHeightStandard'] = standard
-                                        # result['Flag'] = i
                                         r_elbow_angle_list = l_elbow_angle_list = eye_distance_list = []
                                         results.append(result)
                                         print(result)
@@ -100,16 +93,7 @@ def pullUpDetect():
 
             if cv2.waitKey(1) == ord('q'):
                 break
-
-            # if cnt == 500:
-                # break
         cnt += 1
-
-    end = time.time()
-    print("OpenPose demo successfully finished. Total time: " + str(end - start) + " seconds")
-    # except Exception as e:
-    #     print(e)
-    #     sys.exit(-1)
 
 
 pullUpDetect()

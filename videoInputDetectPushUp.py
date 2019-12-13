@@ -4,7 +4,6 @@ import os
 import time
 import keyPointsProcess as kpp
 # import infoVisualization as iv
-import matplotlib.pyplot as plt
 import getValue
 import analysis
 
@@ -103,8 +102,7 @@ def pushUpDetect():
                         if tend:
                             tendency.append(tend)
                             if 3 <= len(tendency):
-                                if tendency[-1] == 'down' or tendency[
-                                        -1] == 'stable':
+                                if tendency[-1] == 'down' or tendency[-1] == 'stable':
                                     if tendency[-2] == 'upper':  # a period and tendency[-3] == 'upper'
                                         result['Num'] = pushUpCnt
                                         standard = analysis.pushUpPeriodJudgeTwoSides(
@@ -128,19 +126,11 @@ def pushUpDetect():
                                         print(result)
                                         result = {}
         cnt += 1
-        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum_front.cvOutputData)
-        cv2.imshow("OpenPose 1.5.1 - Tutorial Python API - side",
-                   datum_side.cvOutputData)
+        cv2.imshow("front", datum_front.cvOutputData)
+        cv2.imshow("side", datum_side.cvOutputData)
 
         if cv2.waitKey(1) == ord('q'):
             break
-
-    # end = time.time()
-    # print("OpenPose demo successfully finished. Total time: " +
-    #       str(end - start) + " seconds")
-    # except Exception as e:
-    #     print(e)
-    #     sys.exit(-1)
 
 
 pushUpDetect()
