@@ -4,9 +4,12 @@ import os
 import time
 import keyPointsProcess as kpp
 # import infoVisualization as iv
+from datetime import datetime
 import matplotlib.pyplot as plt
 import getValue
 import analysis
+import dataBase as db
+
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 try:
@@ -24,28 +27,28 @@ except ImportError as e:
         'Error: OpenPose library could not be found. Did you enable `BUILD_PYTHON` in CMake and have this Python script in the right folder?'
     )
 
-params = dict()
-params[
-    "model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
-
-# Starting OpenPose
-opWrapper = op.WrapperPython()
-opWrapper.configure(params)
-opWrapper.start()
-
-# get video from webcam or video
-start = time.time()
-cap_side = cv2.VideoCapture(0)
-cap_front = cv2.VideoCapture(1)
-# cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
-coorList = []
 
 
-def sitUpDetect():
+def sitUpDetect(length):
     '''Open folder and process .json into a dict
        input: The file path
        ouput: The times of push-up
     '''
+
+    params = dict()
+    params["model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
+
+    # Starting OpenPose
+    opWrapper = op.WrapperPython()
+    opWrapper.configure(params)
+    opWrapper.start()
+
+    # get video from webcam or video
+    # start = time.time()
+    cap_side = cv2.VideoCapture(0)
+    cap_front = cv2.VideoCapture(1)
+    # cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
+    # coorList = []
 
     results = []
     tendency = []
@@ -61,6 +64,10 @@ def sitUpDetect():
     total_r_elbowtoneck_dist = 0
     total_l_elbowtoneck_dist = 0
     cnt = cnt_1 = cnt_2 = 0
+    sitUp_cnt = 0
+
+
+    start_time = datetime.now()
 
     while True:
         # Get images from cam
@@ -68,6 +75,14 @@ def sitUpDetect():
         ret, imageToProcessSide = cap_side.read()
         cv2.imshow('front', imageToProcessFront)
         cv2.imshow('side', imageToProcessSide)
+
+
+        cur_time = datetime.now()
+        delta_time = (cur_time - start_time).seconds
+        print('\r倒计时：' + length - delta_time + '秒', end='')
+        if delta_time == length:
+            break
+        
         if cnt % 2 == 0:
             datum1 = op.Datum()
             datum2 = op.Datum()
@@ -113,7 +128,7 @@ def sitUpDetect():
                             if 3 <= len(tendency):
                                 if tendency[-1] == 'down':
                                     if tendency[-2] == 'upper':  # a period and tendency[-3] == 'upper'
-                                        cnt += 1
+                                        sitUp_cnt += 1
                                         result['Num'] = cnt
                                         standard = analysis.sitUpPeriodJudge(
                                             r_waist_angle_list, l_waist_angle_list,
@@ -123,11 +138,11 @@ def sitUpDetect():
                                             aver_r_elbowtoneck_dist,
                                             aver_l_elbowtoneck_dist)
                                         result['IsRWaistStandard'], result[
-                                            'IsLWaistStandard'] = standard
-                                        result['IsRKneeAngle'], result[
-                                            'IsLKneeAngle'] = standard
-                                        result['IsRElbowtoNeckStandard'], result[
-                                            'IsLElbowtoNeckStandard'] = standard
+                                            'IsLWaistStandard'], result[
+                                                'IsRKneeAngle'], result[
+                                                    'IsLKneeAngle'], result[
+                                                        'IsRElbowtoNeckStandard'], result[
+                                                            'IsLElbowtoNeckStandard'], total = standard
                                         # result['Flag'] = i
                                         r_waist_angle_list = l_waist_angle_list = []
                                         r_s_knee_angle_list = l_s_knee_angle_list = []
@@ -135,6 +150,7 @@ def sitUpDetect():
                                         cnt_1 = cnt_2 = 0
                                         results.append(result)
                                         print(result)
+                                        db.ret(delta_time, total, sitUp_cnt, 'sitUp', results, True)
                                         result = {}
         cnt += 1
         cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum1.cvOutputData)
@@ -142,6 +158,7 @@ def sitUpDetect():
 
         if cv2.waitKey(1) == ord('q'):
             break
+    db.ret(None, None, None, None, None, False)
 
 
-sitUpDetect()
+sitUpDetect(60)

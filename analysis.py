@@ -82,9 +82,9 @@ def pushUpPeriodJudgeTwoSides(r_elbow_angle_list, l_elbow_angle_list,
     # if not ((HIP_DISTANCE_TO_ABOVE <= sorted(hip_distance_list)[-3]) and
     #         (HIP_DISTANCE_TO_BELOW >= sorted(hip_distance_list)[3])):
     #     is_hip_distance_standard = False
-
+    total = is_r_elbow_standard and is_l_elbow_standard and is_hip_angle_standard and is_r_knee_standard and is_hip_distance_standard
     return (is_r_elbow_standard, is_l_elbow_standard, is_hip_angle_standard,
-            is_r_knee_standard, is_hip_distance_standard)
+            is_r_knee_standard, is_hip_distance_standard, total)
 
 
 def pullUpPeriodJudge(r_elbow_angle_list, l_elbow_angle_list,
@@ -104,8 +104,8 @@ def pullUpPeriodJudge(r_elbow_angle_list, l_elbow_angle_list,
 
     if not (min(eye_distance_list) <= EYE_DISTANCE):
         is_height_standard = False
-
-    return (is_r_elbow_standard, is_l_elbow_standard, is_height_standard)
+    total = is_r_elbow_standard and is_l_elbow_standard and is_height_standard
+    return (is_r_elbow_standard, is_l_elbow_standard, is_height_standard, total)
 
 
 def sitUpPeriodJudge(r_waist_angle_list, l_waist_angle_list,
@@ -138,7 +138,7 @@ def sitUpPeriodJudge(r_waist_angle_list, l_waist_angle_list,
     for r_dist in r_elbowtoneck_dist_list:
         var_r_dist = (r_dist - aver_r_elbowtoneck_dist)**2  # 求方差
         cnt += 1
-        return cnt, var_r_dist
+        # return cnt, var_r_dist
     if var_r_dist / (cnt - 1) >= 1:
         is_r_elbowtoneck_standard = False
         print('right_arm is non-standard')
@@ -146,11 +146,12 @@ def sitUpPeriodJudge(r_waist_angle_list, l_waist_angle_list,
     for l_dist in l_elbowtoneck_dist_list:
         var_l_dist = (l_dist - aver_l_elbowtoneck_dist)**2  # 求方差
         cnt += 1
-        return cnt, var_l_dist
+        # return cnt, var_l_dist
     if var_l_dist / (cnt - 1) >= 1:
         is_l_elbowtoneck_standard = False
         print('left_arm is non-standard')
 
+    total = is_r_waist_standard and is_l_waist_standard and is_r_s_knee_standard and is_l_s_knee_standard and is_l_elbowtoneck_standard and is_r_elbowtoneck_standard
     return (is_r_waist_standard, is_l_waist_standard, is_r_s_knee_standard,
             is_l_s_knee_standard, is_l_elbowtoneck_standard,
-            is_r_elbowtoneck_standard)
+            is_r_elbowtoneck_standard, total)

@@ -4,8 +4,10 @@ import os
 import time
 import keyPointsProcess as kpp
 # import infoVisualization as iv
+from datetime import datetime
 import getValue
 import analysis
+import dataBase as db
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 try:
@@ -24,25 +26,27 @@ except ImportError as e:
     )
 
 params = dict()
-params[
-    "model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
-
-# Starting OpenPose
-opWrapper = op.WrapperPython()
-opWrapper.configure(params)
-opWrapper.start()
-
-# get video from webcam or video
-start = time.time()
-cap_side = cv2.VideoCapture(0)
-cap_front = cv2.VideoCapture(1)
-# cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
-coorList = []
+params["model_folder"] = r"E:\Programming\Openpose\openpose\openposePython\models"
 
 
-def pushUpDetect():
+
+
+def pushUpDetect(length):
     # Process
     cnt = 0
+
+    # Starting OpenPose
+    opWrapper = op.WrapperPython()
+    opWrapper.configure(params)
+    opWrapper.start()
+
+    # get video from webcam or video
+    start = time.time()
+    cap_side = cv2.VideoCapture(0)
+    cap_front = cv2.VideoCapture(1)
+    # cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
+    coorList = []
+
 
     results = []
     tendency = []
@@ -55,6 +59,8 @@ def pushUpDetect():
     tick = []
     pushUpCnt = 0
 
+    start_time = datetime.now()
+
     while True:
         # Get images from cam
         ret, imageToProcessFront = cap_front.read()
@@ -62,6 +68,13 @@ def pushUpDetect():
         cv2.imshow('front', imageToProcessFront)
         cv2.imshow('side', imageToProcessSide)
         cnt = 0
+
+        cur_time = datetime.now()
+        delta_time = (cur_time - start_time).seconds
+        print('\r倒计时：' + length - delta_time + '秒', end='')
+        if delta_time == length:
+            break
+
         if cnt % 2 == 0:
             datum_front = op.Datum()
             datum_side = op.Datum()
@@ -104,6 +117,7 @@ def pushUpDetect():
                             if 3 <= len(tendency):
                                 if tendency[-1] == 'down' or tendency[-1] == 'stable':
                                     if tendency[-2] == 'upper':  # a period and tendency[-3] == 'upper'
+                                        pushUpCnt += 1
                                         result['Num'] = pushUpCnt
                                         standard = analysis.pushUpPeriodJudgeTwoSides(
                                             r_elbow_angle_list,
@@ -114,7 +128,7 @@ def pushUpDetect():
                                             'IsLElbowStandard'], result[
                                                 'IsHipAngleStandard'], result[
                                                     'IsRKneeStandard'], result[
-                                                        'IsHipDistanceStandard'] = standard
+                                                        'IsHipDistanceStandard'], total = standard
 
                                         r_elbow_angle_list = []
                                         l_elbow_angle_list = []
@@ -125,12 +139,13 @@ def pushUpDetect():
                                         results.append(result)
                                         print(result)
                                         result = {}
+                                        db.ret(delta_time, total, pushUpCnt, 'pushUp', results, True)
         cnt += 1
         cv2.imshow("front", datum_front.cvOutputData)
         cv2.imshow("side", datum_side.cvOutputData)
 
         if cv2.waitKey(1) == ord('q'):
             break
+    db.ret(None, None, None, None, None, False)
 
-
-pushUpDetect()
+pushUpDetect(60)

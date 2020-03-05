@@ -4,8 +4,10 @@ import os
 import time
 import keyPointsProcess as kpp
 # import infoVisualization as iv
+from datetime import datetime
 import getValue
 import analysis
+import dataBase as db
 
 try:
     # Windows Import
@@ -33,7 +35,7 @@ cap_t = cv2.VideoCapture(1)
 coorList = []
 
 
-def pullUpDetect():
+def pullUpDetect(length):
     # Process
     cnt = 0
 
@@ -46,12 +48,33 @@ def pullUpDetect():
     tick = []
     pullUpCnt = 0
 
+    # Starting OpenPose
+    opWrapper = op.WrapperPython()
+    opWrapper.configure(params)
+    opWrapper.start()
+
+    # get video from webcam or video
+    start = time.time()
+    cap = cv2.VideoCapture(0)
+    cap_t = cv2.VideoCapture(1)
+    # cap2 = cv2.VideoCapture(r'E:\University\科研创新\雏燕计划-体测\体测姿势素材\push-up\push-up-test-1.mp4')
+    coorList = []
+
+    start_time = datetime.now()
+
     while True:
         # Get images from cam
         ret, imageToProcess = cap.read()
         ret, imageToTest = cap_t.read()
         cv2.imshow('video', imageToProcess)
         cv2.imshow('2', imageToTest)
+
+        cur_time = datetime.now()
+        delta_time = (cur_time - start_time).seconds
+        print('\r倒计时：' + length - delta_time + '秒', end='')
+        if delta_time == length:
+            break
+
         if cnt % 2 == 0:
             datum = op.Datum()
             datum.cvInputData = imageToProcess
@@ -83,17 +106,19 @@ def pullUpDetect():
                                         pullUpCnt += 1
                                         result['Num'] = pullUpCnt
                                         standard = analysis.pullUpPeriodJudge(r_elbow_angle_list, l_elbow_angle_list, eye_distance_list)
-                                        result['IsRElbowStandard'], result['IsLElbowStandard'], result['IsHeightStandard'] = standard
+                                        result['IsRElbowStandard'], result['IsLElbowStandard'], result['IsHeightStandard'], total = standard
                                         r_elbow_angle_list = l_elbow_angle_list = eye_distance_list = []
                                         results.append(result)
                                         print(result)
                                         result = {}
+                                        db.ret(delta_time, total, pullUpCnt, 'pullUp', results, True)
 
                 cv2.imshow("OpenPose 1.5.1 - Tutorial Python API", datum.cvOutputData)
 
             if cv2.waitKey(1) == ord('q'):
                 break
         cnt += 1
+    db.ret(None, None, None, None, None, False)
 
 
-pullUpDetect()
+pullUpDetect(60)
